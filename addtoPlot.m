@@ -4,7 +4,7 @@ function [nextOffset] = addtoPlot(data, offsetBegin, label)
 
 numSources = size(data,1);
 plotColors = 'rgbcmyk';
-offSetBegin++;
+offsetBegin++;
 
 for i=1:numSources,
 	plot(data(i,:) + offsetBegin+i, sprintf('%s',plotColors(i)));
