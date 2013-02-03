@@ -1,0 +1,74 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<title>HW2 Independent Component Analysis</title>
+<meta http-equiv="refresh" content="300">
+</head>
+<body>
+<h2>HW2 Independent Component Analysis</h2>
+
+<h3>Due: Friday, Feb 8 2013 at 11:59pm</h3>
+<p></p>
+
+<p>Independent Component Analysis (ICA) is an algorithm for accomplishing <a href="http://en.wikipedia.org/wiki/Blind_source_separation">Blind Source Separation</a>.  That is, if there exists an <b>n</b> by <b>t</b> matrix <b>U</b> of <b>n</b> source signals of length <b>t</b> (in this case, assumed to be functions of time, such as sound, although that is not a requirement), and you have an <b>m</b> by <b>t</b> matrix <b>X</b> of <b>m</b> mixed signals (<b>m&gt;=n</b>) of length <b>t</b> that consist of different linear mixtures of <b>U</b> (i.e., <b>X = AU</b> where <b>A</b> is an <b>m</b> by <b>n</b> matrix such that A<sub>i,j</sub> is the weight of the j<sup>th</sup> source signal in the i<sup>th</sup> mixed signal), then, under certain conditions, you can recover the original signals <b>U</b>, up to a scale factor.</p>
+  This is accomplished by assuming that there is no correlation between 
+source signals and so any correlation between different mixed signals is
+ due to a common signal showing through the mixture.  Our task is to 
+find a matrix <b>W</b> that recovers the original <b>n</b> source signals (possibly in a different order and with different scale factors).<p></p>
+
+<p>There are several algorithms for decreasing the mutual information 
+between signals, for this project, we will use a gradient descent method
+ as described in class:</p>
+<ol>
+<li>Assume <b>X = AU</b>.
+</li><li>Initialize the (<b>n</b> by <b>m</b>) matrix <b>W</b> with small random values.
+</li><li>Calculate <b>Y = WX</b>.<br>
+    <b>Y</b> is our current estimate of the source signals.
+</li><li>Calculate <b>Z</b> where <b>z<sub>i,j</sub> = <i>g</i>(y<sub>i,j</sub>) = 1/(1+e<sup>-y<sub>i,j</sub></sup>)</b> for <b>i</b> &#8712; <b>[1..n]</b> and <b>j</b> &#8712; <b>[1..t]</b> (where <b>t</b> is the length of the signals).<br>
+    This helps us traverse the gradient of maximum information separation.
+</li><li>Find <b>&#916;W = &#951;(I + (1-2Z)Y<sup>T</sup>)W</b> where <b>&#951;</b> is a small learning rate.
+</li><li>Update <b>W = W + &#916;W</b> and repeat from step 3 until convergence or R_max iterations (you get bored and decide it is done).
+</li></ol>
+
+
+<p>Your assignment is to do the following:</p>
+<ol>
+<li> <b>Get data.</b>  
+To access the signals we have prepared, <a href="http://www.cs.utexas.edu/%7Edana/MLClass/sounds.mat">click on this link</a>.
+  
+This .mat file will provide you with a variable called sounds that is a 5
+ by 44000 matrix.  Each row represents a ~four second sound clip 
+(sampled at 11025).  These signals are not mixed.  You will have to mix 
+them yourself.  You might not want to mix all five.  Maybe you will.  
+Some of them might work better together than others.  That is something 
+you can discuss in your report.  If you write it back to file, you will 
+want to be sure and scale it back so that it fits between -1 and 1.<br><br>
+
+</li><li> <b>Mix the data.</b> Create a matrix <b>A</b> to mix the signals.  Output the signals so that you can listen to the result.
+</li><li> <b>Implement the algorithm.</b>
+</li><li> <b>Test.</b>  See how well you can recover the original 
+signals over several trials. Plot the recovered signals next to the 
+original signals. 
+You might have to trim out a small section of the signals to make a 
+legible plot.  
+Also, see if some signals separate better than others. If your program 
+is taking a very long time to converge on the bigger data set, try using
+ smaller initial values for W and a smaller learning rate.
+</li><li> <b>Write and submit.</b> Write, review and submit a brief report containing your plots and detailing what you did and how well it worked,
+ along with your code.  
+Write your name, email address, and EID in the report.
+Submit using <tt>turnin</tt> to <tt>lewfish</tt>. This is <b>hw2</b>.
+<p></p>
+
+<p>To debug your algorithm on a small set, you can try this one.  
+<a href="http://www.cs.utexas.edu/%7Edana/MLClass/icaTest.mat">Click on this link</a> to download "icaTest.mat".
+Load the file in matlab with <tt>load 'icaTest.mat'</tt>.  This will give you two matrices: 
+<b>U</b> (3 by 40) and <b>A</b> (3 by 3).  You can use <b>A</b> to mix <b>U</b> and get <b>X</b>
+and then work from there.</p>
+<p>This is what I got after running it.  The bottom signals are the original signals, the 
+middle signals are the mixed, and the top signals are the recovered signals (all signals 
+have been scaled to fit between 0 and 1).  Notice that in the recovered signals, the top and 
+bottom signals are reversed from the original signals.  Also notice that the recovery is not 
+perfect, but is surprisingly close.  I used <b>&#951;=0.01</b> and 1000000 iterations. The matrix W had initial values chosen from a uniform distribution with values between 0 and 0.1.</p>
+<img src="HW2%20Independent%20Component%20Analysis_files/icaTest.png">
+
+</li></ol></body></html>
