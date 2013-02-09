@@ -1,0 +1,19 @@
+Implementation of Independent Component Analysis (ICA) for Blind Source Separation
+
+This folder contains:
+1. src 		- All source code files
+2. plot 	- plots used in the report
+3. savedMats	- recoverd sound samples
+4. resultCorrs	- correlation matrices of recovered samples
+5. report	- the report
+
+To do a trail sample run of the code:
+1. $cd src
+2. $matlab icafull.m
+
+or (for checking with beta):
+3. $matlab icafullBeta.m
+
+The rest of the code in the src file have names that are self-explanatory and are commented sufficiently to be able to follow the algorithm.
+
+Read report for the explanation of the algorithm, implementation details and results.
