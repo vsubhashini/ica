@@ -1,0 +1,348 @@
+/************************************************************************
+    vcalc.mac is a package of Maxima functions which allow
+    symbolic and explicit calculations of the gradient,
+    laplacian, divergence and curl, as well as a function
+    plotderiv(..) for plotting a function and its first
+    n derivatives, and function lcross(..) for calculating
+    the cross product of 3-vectors represented by lists.
+    
+    Copyright (C) 2008  Edwin L. Woollett  <woollett@charter.net>       
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU GENERAL PUBLIC LICENSE, Version 2, June 1991,
+    as published by the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program.
+    If not, see http://www.fsf.org/licensing/.
+************************************************************************/
+
+/* file vcalc.mac 
+  supports cartesian, cylindrical, and spherical polar coordinate
+     systems     
+ usable vector calculus derivative functions
+   functions: grad(f), div(avec), curl(avec), lap(f) with f scalar or vector
+   
+ 
+*/
+disp(" vcalc.mac:   for syntax, type: vcalc_syntax(); ")$
+
+
+
+vcalc_syntax() :=
+  disp(" see the separate syntax descriptions:
+       setcoord_syntax(),
+       grad_syntax(),
+       div_syntax(),
+       curl_syntax(),
+       lap_syntax(),
+       lcross_syntax(),
+       plotderiv_syntax() ")$
+     
+
+    
+                                              
+                                              
+setcoord_syntax() := 
+    disp(" setcoord( type(u,v,w) ) 
+    Examples of type(u,v,w) are
+    for cartesian: c(x,y,z), or c(u,v,w), or ...,
+    for cylindrical: cy(rho,phi,z), or cy(rh,p,z), or ...,
+    for spherical polar: s(r,theta,phi), or s(r,t,p), or ...
+    The default coordinates are
+    cartesian (x,y,z). The default can be
+    changed using either setcoord(..)
+    or by using the optional argument in
+    the vector calculus functions.  ")$
+
+
+
+/* caution: global variables  */
+
+/* default scale factors (hhh1,hhh2,hhh3)  */
+(hhh1:1,hhh2:1,hhh3:1)$
+/* default coordinates */
+( uuu1:x, uuu2:y, uuu3:z )$
+/* default coordinate sys num */
+ nnnsys : 1$
+ /* default print flag */
+ nnnprint : true$
+ 
+ /* default trigsimp flag */
+  tttsimp : true$
+ 
+disp(" CAUTION: global variables set and used in this package:
+       hhh1, hhh2, hhh3, uuu1, uuu2, uuu3, nnnsys, nnnprint, tttsimp ")$ 
+
+setcoord([v]) :=
+   block([ cargs,choice,cop ], 
+     if length(v) = 0 then( setcoord_syntax(),return(false) ),
+       
+     if length(v) > 1 then (print("syntax error"),return(false) ),
+     /* we know length(v) = 1  */
+     choice : v[1],
+     cop : op(choice),
+     cargs : args(choice),
+     if length(cargs) # 3 then (print(" syntax error "),return(false)),
+     /* set coordinate names */
+     uuu1:cargs[1],
+     uuu2:cargs[2],
+     uuu3:cargs[3],
+     /* set scale factors */
+     
+     if cop = c then (
+       /* case cartesian  */
+       nnnsys:1,
+       hhh1:1,
+       hhh2:1,
+       hhh3:1       
+       )
+      else if cop = cy then (
+        /* case cylindrical  */
+        nnnsys:2,
+        hhh1:1,
+        hhh2:cargs[1],
+        hhh3:1 
+        )
+      else if cop = s then (
+        /* case spherical polar */
+        nnnsys:3,
+        hhh1:1,
+        hhh2:cargs[1],
+        hhh3: cargs[1]*sin( cargs[2] )
+        )
+      else (print(" syntax error"),return(false)),
+      return(true)
+     ) $
+           
+     
+
+
+grad_syntax() :=
+    disp(" grad( expr, optional_coord_choice)
+     returns a list of the components of gradient(expr) in
+     the current coordinate system. The default coordinates
+     are cartesian (x,y,z) for all the vector calculus
+     derivative functions in this package, so that, assuming
+     the current coordinate system is cartesian (x,y,z),
+     grad(f) returns the cartesian components as a list and
+     expects f to be either an explicit function of (x,y,z),
+     or else declared as dependent with the statement:
+     depends(f,[x,y,z]), or else mentioned in an appropriate
+     gradef(..) statement.
+     The optional_coordinate_choice argument has the form
+     type(u,v,w) and can be, for example, c(x,y,z),
+     cy(rho,phi,z), s(r,theta,phi) for respectively
+     cartesian, cylindrical, and spherical polar. You can
+     change the default coordinate system separately using
+     setcoord( type(u,v,w) )" )$
+     
+grad(expr,[v]) :=
+   block([ eexpr, g1,g2,g3,goodv,
+     systype:["cartesian ","cylindrical ","spherical polar "]  ],
+     local(dotsimp),
+       
+    dotsimp(eexpr) := (trigsimp(eexpr),scanmap('multthru,%%) ),
+       
+   if length(v) # 0 then (
+     if length(v) > 1 then (
+        setcoord(),
+        return("try again")
+        ),
+      goodv : setcoord(v[1]),
+      if not goodv then return(false)
+    ),
+    
+    g1 : (diff(expr,uuu1)/hhh1, ratsimp(%%) ),
+    g2 : (diff(expr,uuu2)/hhh2, ratsimp(%%) ),
+    g3 : (diff(expr,uuu3)/hhh3, ratsimp(%%) ),
+    if tttsimp then [g1,g2,g3] : map('dotsimp,[g1,g2,g3]),
+    if nnnprint then print(systype[nnnsys],[uuu1,uuu2,uuu3]),
+    [g1,g2,g3]     
+    
+   )$
+   
+div_syntax() := 
+disp(" div( avec_list , optional_coord_choice ) returns the divergence of
+  the three dimensional vector whose three components are the elements of
+  avec_list. The list avec_list should have three elements. The default
+  coordinates are cartesian (x,y,z) unless setcoord(..) or an optional coord
+  arg of one of the vector calculus derivative functions has changed that
+  default. Assuming the current coordinate system is cartesian (x,y,z),
+  div(avec_list) expects the elements of the list to be either explicit
+  functions of (x,y,z), or else symbols like [ax,ay,az] which have been
+  declared as dependent on (x,y,z) with the statement:
+  depends([ax,ay,az],[x,y,z]), or else mentioned in appropriate gradef(..)
+  statements.
+  The optional_coordinate_choice argument has the form type(u,v,w) and can
+  be, for example, c(x,y,z), cy(rho,phi,z), s(r,theta,phi) for respectively
+  cartesian, cylindrical, and spherical polar. You can change the default
+  coordinate system separately using setcoord( type(u,v,w) )" )$   
+   
+div(avec,[v]) :=
+   block( [divres, eexpr,goodv, 
+     systype:["cartesian ","cylindrical ","spherical polar "]  ],  
+     local(dotsimp),       
+     dotsimp(eexpr) := (trigsimp(eexpr),scanmap('multthru,%%) ),   
+     
+     if not listp(avec) then 
+          return(" div(avec): avec must be a list of components"),
+     if length(avec) # 3 then return(" div(avec_list): list must have three elements 
+       corresponding to the three components of the vector "),     
+          
+     if length(v) # 0 then (
+       if length(v) > 1 then (
+         setcoord(),
+         return("try again")
+        ),
+      goodv : setcoord(v[1]),
+      if not goodv then return(false)
+      ), 
+      
+      divres : ( ( diff(hhh2*hhh3*avec[1],uuu1) +
+                   diff(hhh3*hhh1*avec[2],uuu2) +
+                   diff(hhh1*hhh2*avec[3],uuu3) ) / (hhh1*hhh2*hhh3) , ratsimp(%%) ),
+                   
+      if tttsimp then divres : dotsimp(divres),
+      if nnnprint then print(systype[nnnsys],[uuu1,uuu2,uuu3]),
+      divres
+     )$ 
+     
+     
+curl_syntax() := 
+disp(" curl( avec_list , optional_coord_choice ) returns the curl of
+  the three dimensional vector whose three components are the elements of
+  avec_list. The list avec_list should have three elements. The default
+  coordinates are cartesian (x,y,z) unless setcoord(..) or an optional coord
+  arg of one of the vector calculus derivative functions has changed that
+  default. Assuming the current coordinate system is cartesian (x,y,z),
+  curl(avec_list) expects the elements of the list to be either explicit
+  functions of (x,y,z), or else symbols like [ax,ay,az] which have been
+  declared as dependent on (x,y,z) with the statement:
+  depends([ax,ay,az],[x,y,z]), or else mentioned in appropriate gradef(..)
+  statements.
+  The optional_coordinate_choice argument has the form type(u,v,w) and can
+  be, for example, c(x,y,z), cy(rho,phi,z), s(r,theta,phi) for respectively
+  cartesian, cylindrical, and spherical polar. You can change the default
+  coordinate system separately using setcoord( type(u,v,w) )" )$   
+
+
+
+
+curl(avec,[v]) :=
+   block( [curlres, eexpr,g1,g2,g3, goodv,
+     systype:["cartesian ","cylindrical ","spherical polar "]  ],  
+     local(dotsimp),       
+     dotsimp(eexpr) := (trigsimp(eexpr),scanmap('multthru,%%) ),   
+     
+     if not listp(avec) then 
+          return(" curl(avec): avec must be a list of components"),
+     if length(avec) # 3 then return(" curl(avec_list): list must have three elements 
+       corresponding to the three components of the vector "),     
+          
+     if length(v) # 0 then (
+       if length(v) > 1 then (
+         setcoord(),
+         return("try again")
+        ),
+      goodv : setcoord(v[1]),
+      if not goodv then return(false)
+      ), 
+      
+      g1 : ( ( diff( hhh3*avec[3],uuu2 ) - diff( hhh2*avec[2],uuu3) )/(hhh2*hhh3), ratsimp(%%) ),
+      g2 : ( ( diff( hhh1*avec[1],uuu3 ) - diff( hhh3*avec[3],uuu1) )/(hhh3*hhh1), ratsimp(%%) ),
+      g3 : ( ( diff( hhh2*avec[2],uuu1 ) - diff( hhh1*avec[1],uuu2) )/(hhh1*hhh2), ratsimp(%%) ),
+      
+      if tttsimp then [g1,g2,g3] : map('dotsimp,[g1,g2,g3]),
+      if nnnprint then print(systype[nnnsys],[uuu1,uuu2,uuu3]),
+      [g1,g2,g3]                        
+      
+     )$      
+     
+lap_syntax() :=
+ disp(" 
+     lap(expr_or_list, optional_coord_choice)
+     returns the laplacian of a scalar expression or a 3-vector list of
+     components  ")$
+     
+lap(a,[v]) :=
+   block( [lapres,goodv,
+     systype:["cartesian ","cylindrical ","spherical polar "]  ],       
+          
+   if length(v) # 0 then (
+     if length(v) > 1 then (
+        setcoord(),
+        return("try again")
+        ),
+      goodv : setcoord(v[1]),
+      if not goodv then return(false)
+    ),
+    
+   nnnprint : false,    
+   if listp(a) then lapres  : grad( div(a) ) - curl( curl(a) )
+        else  lapres : div( grad(a) ),
+   nnnprint : true,
+
+   print(systype[nnnsys],[uuu1,uuu2,uuu3]),
+   lapres    
+    
+   )$     
+     
+     
+     
+   
+
+ lcross_syntax() := 
+    disp("
+     lcross(vec1,vec2) returns a list of the components of the
+     vector cross product of vec1 with vec2. ")$
+     
+ lcross(u,v) := ( [ (u[2]*v[3] - u[3]*v[2]),
+                    ( u[3]*v[1] - u[1]*v[3]),
+                   ( u[1]*v[2] - u[2]*v[1] ) ] )$  
+                   
+
+
+plotderiv_syntax() :=
+  disp("plotderiv(expr,x,x1,x2,y1,y2,numderiv)  constructs a list of
+       the submitted expression expr and its first numderiv derivatives
+       with respect to the independent variable, and then passes
+       this list to qdraw(..). You need to have used load(draw)
+       and load(qdraw) before using this function ")$
+       
+       
+/*  version 1 commented out
+
+plotderiv(expr,x,x1,x2,y1,y2,numderiv) :=
+   block([plist],
+     plist : [],
+     for i thru numderiv do
+        plist : cons(diff(expr,x,i), plist),
+     plist : reverse(plist),
+     plist : cons(expr, plist),
+     display(plist),
+     apply( 'qdraw, [ ex( plist,x,x1,x2 ),yr(y1,y2), key(bottom) ]  )
+   )$
+   
+*/
+
+/* version 2  slightly more efficient  */   
+       
+
+plotderiv(expr,x,x1,x2,y1,y2,numderiv) :=
+   block([plist,aa],
+     plist : [],
+     aa[0] : expr,
+     for i thru numderiv do (
+        aa[i] : diff(aa[i-1],x),
+        plist : cons(aa[i], plist)
+         ),
+     plist : reverse(plist),
+     plist : cons(expr, plist),
+     display(plist),
+     apply( 'qdraw, [ ex( plist,x,x1,x2 ),yr(y1,y2), key(bottom) ]  )
+   )$
+                         

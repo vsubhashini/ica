@@ -1,0 +1,12 @@
+
+ 	 rec-1	 rec-2	 rec-3	 rec-4	 rec-5
+ src-1 -0.138845  -0.957389  -0.090691  -0.226029  -0.069265 
+ src-2 0.179735  0.166812  -0.158710  -0.475315  -0.829910 
+ src-3 -0.947800  0.138148  -0.115145  0.127852  -0.230195 
+ src-4 -0.192357  0.178837  0.112777  -0.846516  0.449131 
+ src-5 0.063672  0.073984  -0.969566  -0.015079  0.224040 
+Source signal src-1 matches recovered signal rec-5 
+Source signal src-2 matches recovered signal rec-1 
+Source signal src-3 matches recovered signal rec-2 
+Source signal src-4 matches recovered signal rec-5 
+Source signal src-5 matches recovered signal rec-5 
