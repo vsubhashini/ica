@@ -13,11 +13,11 @@ load('icaTest.mat'); % Original signals stored in matrices U (3x40) and A(3x3)
 load('sounds.mat'); % Original signals stored in sounds
 
 %srcMat=U;
-%srcMat=sounds;  	% Takes too much time to run all 5
+srcMat=sounds;  	% Takes too much time to run all 5
 %srcMat=sounds(1:3,:);	% Take only 3 signals
 %srcMat=sounds(2:4,:);	% Take only 3 signals
 %srcMat=sounds(3:5,:);	% Take only 3 signals
-srcMat=[sounds(2,:); sounds(3,:); sounds(5,:)];
+%srcMat=[sounds(2,:); sounds(3,:); sounds(5,:)];
 
 plot(0,0);
 hold on;
@@ -45,6 +45,8 @@ fprintf('\n Showing Mixed Signals. Press enter to continue.\n');
 
 eta = 0.01;
 eta0 = eta;
+b = ones(numSrc,1);
+kappa=0.01;	%0.0001-no change, 0.01-good
 T=1000;
 num_iter=10000;
 
@@ -53,16 +55,18 @@ W = rand(size(A)) ./ 10;
 
 for i=0:num_iter,
 	Y = W*X;			% predict source matrix based on guessed mix matrix
-	[delW, mygrad] = gradient(eta, Y, W);	% gradient descent - shift by delta
+	[delW, delmyW, delb] = wgradientbeta(eta, kappa, b, Y, W);	% gradient descent - shift by delta
 	W = W + delW;			% update W
-	%W = W + (mygrad * 0.001);			% update W
+	%W = W + (delmyW * 0.001);			% update W
 	eta = eta0 / (1 + (i/T));	% annealing - learning rate
-	%if(mod(i,1000)==0),
-	%	fprintf('runs %d \n',i);
-	%	W
+	if(mod(i,100)==0),
+		b
+		b = b + delb
+		fprintf('runs %d \n',i);
+		W
 	%	corrMat = correlations(srcMat,Y)
 	%	%fflush(stdout);
-	%end;
+	end;
 end;
 
 Y = W*X;				% predict source matrix based on guessed mix matrix
@@ -84,15 +88,15 @@ offSet = addtoPlot(Y2, offSet, label);
 %	%fprintf('Check Plot. Press Enter to continue');
 %	pause;
 %end;
-print -dpng 'icaCheckImage.png';
+print -dpng 'Beta-soundrecoveredImage.png';
 hold off;
 
 % Compute correlation matrix to see which signals match and how well.
 corrMat = correlations(srcMat,Y);
-checkfile='icaCorrelations.txt';
+checkfile='Beta-sound-checkfile.txt';
 printCorrs(corrMat, checkfile);
 
-%save('235recovered.mat', 'Y2', 'corrMat');
+save('Beta-soundrecovered.mat', 'Y2', 'corrMat');
 %Check sounds
 %soundsc(Y2(1,:),11025);
 fprintf('\n Recovered Source Signals. Press enter to continue.\n');

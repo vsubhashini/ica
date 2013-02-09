@@ -214,9 +214,8 @@ The basic developmental algorithm was first tested on a simple data set consisti
 The primary data for the main experiments consisted of 5 sound source samples, each approximately 4 seconds in length and sampled at the rate 11025 samples per second. The mixing matrix \textbf{A} was created by choosing random elements in the range $(0 - 0.1)$. The experiment was first conducted by considering all 3 source combinations (i.e. $5 \choose 3$ source combinations), to compare which source combinations were easy (equivalently hard) to separate. Correlation co-efficient was used to compare the goodness of recovery. The recovered signals were also plotted for visual comparison of the results.
 \begin{figure}[hb!]
 \begin{center}
-	\includegraphics[width=16.0cm, height=7.1cm]{../plots/icaTestCheckImage.png}
+	\includegraphics[width=16.0cm, height=6.9cm]{../plots/icaTestCheckImage.png}
 \end{center}
-\vspace{-1.0cm}
 \caption{Result of testing the algorithm on small 40 sample signal sources.}\label{fig:test1}
 \end{figure}
 
@@ -276,8 +275,8 @@ $$ \beta_{new} = \beta_{old} + \kappa \left( \frac{\partial L}{\partial \beta_j}
 %\def\tabularxcolumn#1{m{#1}}
 %\begin{tabularx}{\linewidth}{@{}X@{}}
 \begin{center}
-   \subfloat[Recovering a mixture of 2, 3, and 5]{\includegraphics[width=8.5cm]{../plots/Beta-235recoveredImage-veryGood.png}}
-   \subfloat[Recovering mixture of all 5 signals]{\includegraphics[width=8.5cm]{../plots/Beta-all5recoveredImage.png}}
+   \subfloat[Recovering a mixture of 2, 3, and 5]{\includegraphics[width=8.3cm]{../plots/Beta-235recoveredImage-veryGood.png}}
+   \subfloat[Recovering mixture of all 5 signals]{\includegraphics[width=8.3cm]{../plots/Beta-all5recoveredImage.png}}
 \end{center}
 %\end{tabularx}
 \caption{Recovering signals by additionally varying $\beta$.}\label{fig:exp4}
