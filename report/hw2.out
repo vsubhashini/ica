@@ -1,0 +1,12 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}
+\BOOKMARK [1][-]{section.2}{Maximum Likelihood estimation and ICA algorithm}{}
+\BOOKMARK [2][-]{subsection.2.1}{Recovered and source signal comparison}{section.2}
+\BOOKMARK [2][-]{subsection.2.2}{Sigmoid function, Computing gradient}{section.2}
+\BOOKMARK [1][-]{section.3}{Experiments}{}
+\BOOKMARK [2][-]{subsection.3.1}{Methodology}{section.3}
+\BOOKMARK [1][-]{section.4}{Results}{}
+\BOOKMARK [2][-]{subsection.4.1}{Recovering mixture of 3 sources with annealing}{section.4}
+\BOOKMARK [2][-]{subsection.4.2}{Recovering all 5 signals}{section.4}
+\BOOKMARK [2][-]{subsection.4.3}{Additional experiments: varying slope of sigmoid}{section.4}
+\BOOKMARK [1][-]{section.5}{Conclusion}{}
+\BOOKMARK [1][-]{section.6}{Appendix}{}
